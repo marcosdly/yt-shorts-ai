@@ -16,5 +16,7 @@ CHILD_OUTPUT_FOLDER_BY_DURATION = {
     60: "60s"
 }
 
+LOGS_FOLDER = is_dir_fatal("~/.yt-shorts.log.d")
+
 # CPU threads to use while ouputting video
 THREADS = 4

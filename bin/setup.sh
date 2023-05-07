@@ -1,5 +1,7 @@
 #! /usr/bin/env bash
 
+cd "$HOME"
+
 # create required directories if they don't exist
 mkdir -p \
   .uncutted-videos-input                                    \
@@ -7,4 +9,5 @@ mkdir -p \
   .rejected-videos                                          \
   .approved-not-posted-videos/{10s,20s,30s,40s,50s,60s}     \
   .approved-already-posted-videos/{10s,20s,30s,40s,50s,60s} \
-  .invalid-files-and-dirs-trash
+  .invalid-files-and-dirs-trash                             \
+  .yt-shorts.log.d
