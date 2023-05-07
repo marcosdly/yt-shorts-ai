@@ -10,8 +10,9 @@ cd yt-shorts-ai.d
 mkdir -p \
   .uncutted-videos-input                                    \
   .cutted-videos-pre-validation/{10s,20s,30s,40s,50s,60s}   \
-  .rejected-videos                                          \
+  .rejected-videos/{10s,20s,30s,40s,50s,60s}                \
   .approved-not-posted-videos/{10s,20s,30s,40s,50s,60s}     \
   .approved-already-posted-videos/{10s,20s,30s,40s,50s,60s} \
   .invalid-files-and-dirs-trash                             \
+  .already-cutted-original-videos                           \
   .yt-shorts.log.d

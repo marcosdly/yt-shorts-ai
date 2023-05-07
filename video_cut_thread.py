@@ -5,6 +5,7 @@ import time
 from local_logging import log
 import moviepy.editor as editor
 from io_utils import is_file, move_to_trash
+import shutil
 
 __all__ = ["watch_and_cut"]
 
@@ -64,13 +65,17 @@ def cut_video_if_valid(path: str):
                             f"{clip_content_hash}.mp4")
                         os.rename(output_path, new_output_path)
                         log.info(f"Renamed clip {os.path.basename(output_path)} to {os.path.basename(new_output_path)}")
-                        
-
     except OSError:
         # handle not being a video
         log.error(f"Path {path} is not a video, skipping and moving to trash...")
         move_to_trash(path)
         return
+
+    # Move videos that already have been cutted.
+    # If execution gets to this point everything has gone well
+    # and [path] is a valid video, with invalid videos/files/dirs being
+    # moved to trash before this point.
+    shutil.move(path, ALREADY_CUTTED_ORIGINAL_FOLDER)
 
 
 def watch_and_cut():
