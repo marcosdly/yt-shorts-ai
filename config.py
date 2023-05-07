@@ -1,4 +1,23 @@
-from io_utils import is_dir_fatal
+import sys, os
+
+# implementing it here too to avoid circular dependency issues
+def is_dir_fatal(path: str) -> str:
+    if not isinstance(path, str):
+        print("PATH IS NOT STRING")
+        sys.exit(1)
+
+    path = os.path.expanduser(path)
+
+    if not os.path.exists(path):
+        print(f"NO SUCH FILE OR DIRECTORY {path}")
+        sys.exit(1)
+
+    try:   
+        with os.scandir(path):
+            return path
+    except:
+        print(f"{path} IS NOT A DIRECTORY")
+        sys.exit(1)
 
 # Relevant directories
 INPUT_FOLDER = is_dir_fatal("~/.uncutted-videos-input")
