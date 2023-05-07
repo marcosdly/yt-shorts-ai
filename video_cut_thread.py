@@ -1,9 +1,8 @@
 from config import *
 import os
-import numpy
 import hashlib
 import time
-import logging as log
+from local_logging import log
 import moviepy.editor as editor
 from io_utils import is_file, move_to_trash
 
@@ -33,27 +32,28 @@ def cut_video_if_valid(path: str):
 
             durations = [10, 20, 30, 40, 50, 60]  # in seconds
             for clip_length in durations:
-                possible_amount_of_clips = numpy.floor(video.duration / clip_length)
+                possible_amount_of_clips = int(video.duration / clip_length)
                 log.info(
-                    f"Video {video.filename} with {video.duration} seconds will grant {possible_amount_of_clips} clips")
+                    f"Video {os.path.basename(video.filename)} with {video.duration} seconds will grant {possible_amount_of_clips} clips of {clip_length} each")
                 start = 0
                 end = clip_length
-                for i in range(possible_amount_of_clips):
+                for _ in range(possible_amount_of_clips):
                     clip = video.subclip(start, end)
 
                     # adjust clip range
                     start = end
                     end = end + clip_length
 
-                    temp_title = hashlib.sha256(bytes(video.filename, "utf-8")).hexdigest()
+                    # sha256 of original video path
+                    video_path_hash = hashlib.sha256(bytes(video.filename, "utf-8")).hexdigest()
                     # output_path = f"{OUPUT_FOLDER}/{temp_title}.mp4"
                     output_path = os.path.join(
                         OUTPUT_FOLDER,
                         CHILD_OUTPUT_FOLDER_BY_DURATION[clip_length],
-                        f"{temp_title}.mp4")
+                        f"TEMP-{video_path_hash}.mp4")
 
                     clip.write_videofile(output_path, codec="libx264", threads=THREADS)
-                    log.info(f"Written clip {output_path} from {video.filename}")
+                    log.info(f"Written clip {os.path.basename(output_path)} from {os.path.basename(video.filename)}")
 
                     with open(output_path, "rb") as in_drive_clip:
                         clip_content_hash = hashlib.sha256(in_drive_clip.read()).hexdigest()
@@ -63,7 +63,8 @@ def cut_video_if_valid(path: str):
                             CHILD_OUTPUT_FOLDER_BY_DURATION[clip_length],
                             f"{clip_content_hash}.mp4")
                         os.rename(output_path, new_output_path)
-                        log.info(f"Renamed clip {output_path} to {new_output_path}")
+                        log.info(f"Renamed clip {os.path.basename(output_path)} to {os.path.basename(new_output_path)}")
+                        
 
     except OSError:
         # handle not being a video

@@ -1,7 +1,7 @@
 import os
-import logging as log
 import sys
 import shutil
+from local_logging import log
 from config import *
 
 
