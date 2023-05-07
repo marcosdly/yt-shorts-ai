@@ -2,6 +2,10 @@
 
 cd "$HOME"
 
+mkdir yt-shorts-ai.d
+
+cd yt-shorts-ai.d
+
 # create required directories if they don't exist
 mkdir -p \
   .uncutted-videos-input                                    \

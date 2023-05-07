@@ -20,12 +20,12 @@ def is_dir_fatal(path: str) -> str:
         sys.exit(1)
 
 # Relevant directories
-INPUT_FOLDER = is_dir_fatal("~/.uncutted-videos-input")
-OUTPUT_FOLDER = is_dir_fatal("~/.cutted-videos-pre-validation")
-REJECTED_FOLDER = is_dir_fatal("~/.rejected-videos")
-APPROVED_FOLDER = is_dir_fatal("~/.approved-not-posted-videos")
-ALREADY_POSTED_FOLDER = is_dir_fatal("~/.approved-already-posted-videos")
-TRASH_FOLDER = is_dir_fatal("~/.invalid-files-and-dirs-trash")
+INPUT_FOLDER = is_dir_fatal("~/yt-shorts-ai.d/.uncutted-videos-input")
+OUTPUT_FOLDER = is_dir_fatal("~/yt-shorts-ai.d/.cutted-videos-pre-validation")
+REJECTED_FOLDER = is_dir_fatal("~/yt-shorts-ai.d/.rejected-videos")
+APPROVED_FOLDER = is_dir_fatal("~/yt-shorts-ai.d/.approved-not-posted-videos")
+ALREADY_POSTED_FOLDER = is_dir_fatal("~/yt-shorts-ai.d/.approved-already-posted-videos")
+TRASH_FOLDER = is_dir_fatal("~/yt-shorts-ai.d/.invalid-files-and-dirs-trash")
 CHILD_OUTPUT_FOLDER_BY_DURATION = {
     10: "10s",
     20: "20s",
@@ -35,7 +35,7 @@ CHILD_OUTPUT_FOLDER_BY_DURATION = {
     60: "60s"
 }
 
-LOGS_FOLDER = is_dir_fatal("~/.yt-shorts.log.d")
+LOGS_FOLDER = is_dir_fatal("~/yt-shorts-ai.d/.yt-shorts.log.d")
 
 # CPU threads to use while ouputting video
 THREADS = 4
