@@ -1,11 +1,14 @@
 from config import *
 import os
+from os.path import basename, dirname, exists, join
+import pathlib
 import hashlib
 import time
-from local_logging import log
 import moviepy.editor as editor
-from io_utils import is_file, move_to_trash
 import shutil
+from local_logging import log
+from io_utils import is_file, move_to_trash
+from db import VideoDoc
 
 __all__ = ["watch_and_cut"]
 
@@ -18,10 +21,21 @@ def cut_video_if_valid(path: str):
     # handle not being a file
     if not is_file(path):  # builtin string check
         log.error(f"Path {path} is not a file, skipping and moving to trash...")
-        if os.path.exists(path):
+        if exists(path):
             move_to_trash(path)
         return  # skip function execution if path is not file
 
+    # original video initial name
+    video_initial_name = ""
+    # original video final name (to be easier to find afterwards)
+    video_final_name = ""
+    # sha256 of original video path
+    video_original_path_hash = ""
+    # 17.532 seconds to hash the entire The Dark Knight (2008) movie on a i3 5005U
+    # using sha256, so this is safe (To my standards, and for this application).
+    video_content_hash = ""
+
+    # Checking if video is valid and assigning/re-assigning variables
     try:
         with editor.VideoFileClip(path) as video:
             if video.duration < 60:
@@ -30,46 +44,77 @@ def cut_video_if_valid(path: str):
                     "Provided video has 60 seconds or less! Please provide a longer one. Skipping and moving to trash...")
                 move_to_trash(path)
                 return
+            
+            
+            # Renaming initial video to the hash of its content for catalogation purposes
+            if True: # introducing new scope to encapsulate variables
+                parent_dir = dirname(path)
+                original_extension = pathlib.Path(path).suffix
+                # renaming all videos to the same name before hashing because file names can
+                # influence the final hash
+                pre_hash_path = join(parent_dir, "DUMMY-TEMP-HARD-CODED-TITLE.video")
+                os.rename(src=path, dst=pre_hash_path)
+                video_hash = hashlib.sha256(open(pre_hash_path, "rb").read()).hexdigest()
+                post_hash_filename = f"{video_hash}{original_extension}"
+                post_hash_path = join(parent_dir, post_hash_filename)
+                os.rename(src=pre_hash_path, dst=post_hash_path)
 
-            durations = [10, 20, 30, 40, 50, 60]  # in seconds
-            for clip_length in durations:
-                possible_amount_of_clips = int(video.duration / clip_length)
-                log.info(
-                    f"Video {os.path.basename(video.filename)} with {video.duration} seconds will grant {possible_amount_of_clips} clips of {clip_length} each")
-                start = 0
-                end = clip_length
-                for _ in range(possible_amount_of_clips):
-                    clip = video.subclip(start, end)
+                # assigning already initialized variables
+                video_initial_name = basename(path)
+                video_final_name = post_hash_filename
+                video_original_path_hash = hashlib.sha256(bytes(path, "utf-8")).hexdigest()
+                video_content_hash = video_hash
+                path = post_hash_path # *re-assigning*
 
-                    # adjust clip range
-                    start = end
-                    end = end + clip_length
-
-                    # sha256 of original video path
-                    video_path_hash = hashlib.sha256(bytes(video.filename, "utf-8")).hexdigest()
-                    # output_path = f"{OUPUT_FOLDER}/{temp_title}.mp4"
-                    output_path = os.path.join(
-                        OUTPUT_FOLDER,
-                        CHILD_OUTPUT_FOLDER_BY_DURATION[clip_length],
-                        f"TEMP-{video_path_hash}.mp4")
-
-                    clip.write_videofile(output_path, codec="libx264", threads=THREADS)
-                    log.info(f"Written clip {os.path.basename(output_path)} from {os.path.basename(video.filename)}")
-
-                    with open(output_path, "rb") as in_drive_clip:
-                        clip_content_hash = hashlib.sha256(in_drive_clip.read()).hexdigest()
-                        # new_output_path = f"{OUPUT_FOLDER}/{clip_content_hash}.mp4"
-                        new_output_path = os.path.join(
-                            OUTPUT_FOLDER,
-                            CHILD_OUTPUT_FOLDER_BY_DURATION[clip_length],
-                            f"{clip_content_hash}.mp4")
-                        os.rename(output_path, new_output_path)
-                        log.info(f"Renamed clip {os.path.basename(output_path)} to {os.path.basename(new_output_path)}")
     except OSError:
         # handle not being a video
         log.error(f"Path {path} is not a video, skipping and moving to trash...")
         move_to_trash(path)
         return
+
+    with editor.VideoFileClip(path) as video:
+
+        durations = [10, 20, 30, 40, 50, 60]  # in seconds
+        # durations = [10] # debug
+        for clip_length in durations:
+            possible_amount_of_clips = int(video.duration / clip_length)
+            log.info(
+                f"Video {basename(video.filename)} with {video.duration} seconds will grant {possible_amount_of_clips} clips of {clip_length} each")
+            start = 0
+            end = clip_length
+            for _ in range(possible_amount_of_clips):
+                temp_db_document = VideoDoc()
+
+                clip = video.subclip(start, end)
+
+                # adjust clip range
+                start = end
+                end = end + clip_length
+
+                output_path = join(
+                    OUTPUT_FOLDER,
+                    CHILD_OUTPUT_FOLDER_BY_DURATION[clip_length],
+                    f"TEMP-{video_original_path_hash}.mp4")
+
+                clip.write_videofile(output_path, codec="libx264", threads=THREADS)
+                log.info(f"Written clip {basename(output_path)} from {basename(video.filename)}")
+
+                with open(output_path, "rb") as in_drive_clip:
+                    clip_content_hash = hashlib.sha256(in_drive_clip.read()).hexdigest()
+                    new_output_path = join(
+                        OUTPUT_FOLDER,
+                        CHILD_OUTPUT_FOLDER_BY_DURATION[clip_length],
+                        f"{clip_content_hash}.mp4")
+                    os.rename(output_path, new_output_path)
+                    log.info(f"Renamed clip {basename(output_path)} to {basename(new_output_path)}")
+                    
+                    temp_db_document.basename = basename(new_output_path)
+                    temp_db_document.original_video_initial_name = video_initial_name
+                    temp_db_document.original_video_content_hash = video_content_hash
+                    temp_db_document.original_video_final_name = video_final_name
+                    temp_db_document.duration = clip_length
+                    temp_db_document.save()
+    
 
     # Move videos that already have been cutted.
     # If execution gets to this point everything has gone well
