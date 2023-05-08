@@ -1,0 +1,7 @@
+{
+  "host": "ip or uri",
+  "port": 0,
+  "db": "db name",
+  "user": "username",
+  "password": "user's password"
+}
