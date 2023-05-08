@@ -3,6 +3,9 @@
 /*.mp3
 /*.mp4
 
+# ignoring config files that contain sensible information
+config/database.json
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
