@@ -5,6 +5,7 @@
 
 # ignoring config files that contain sensible information
 config/database.json
+config/openai.json
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
