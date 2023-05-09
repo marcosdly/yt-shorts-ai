@@ -1,11 +1,13 @@
 import os
 import sys
 import shutil
+from moviepy.editor import VideoFileClip
 from local_logging import log
 from config import *
 
 
 def is_dir(path: str) -> bool:
+    # TODO: REPLACE BY NATIVE
     if not isinstance(path, str):
         return False
     try:
@@ -31,6 +33,7 @@ def is_dir_fatal(path: str) -> str:
 
 
 def is_file(path: str) -> bool:
+    # TODO: REPLACE BY NATIVE
     if not isinstance(path, str):
         return False
     try:
@@ -62,3 +65,16 @@ def move_to_trash(path: str):
         raise FileNotFoundError("Source file or directory doesn't exist. Can't move to trash.")
 
     shutil.move(path, TRASH_FOLDER)
+
+def is_video(path: str) -> bool:
+    if not isinstance(path, str):
+        raise TypeError("Provided path is not a string.")
+    
+    if not os.path.isfile(path):
+        raise TypeError("Provided path doesn't point to a file.")
+    
+    try:
+        with VideoFileClip(path):
+            return True
+    except:
+        return False
