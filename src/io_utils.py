@@ -12,7 +12,7 @@ def is_dir_fatal(path: str) -> str:
         sys.exit(1)
     path = expanduser(path)
     if not isdir(path):
-        log.error(f"{path} :: No such file or directory.", err)
+        log.error(f"{path} :: No such file or directory.")
         sys.exit(1)
     return path
 
@@ -24,7 +24,7 @@ def is_file_fatal(path: str) -> str:
         sys.exit(1)
     path = expanduser(path)
     if not isfile(path):
-        log.error(f"{path} :: No such file or directory", err)
+        log.error(f"{path} :: No such file or directory")
         sys.exit(1)
     return path
 
