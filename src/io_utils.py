@@ -6,19 +6,6 @@ from local_logging import log
 from config import *
 
 
-def is_dir(path: str) -> bool:
-    # TODO: REPLACE BY NATIVE
-    if not isinstance(path, str):
-        return False
-    try:
-        dir = os.scandir(os.path.expanduser(path))
-    except FileNotFoundError:
-        return False
-    finally:
-        dir.close()
-    return True
-
-
 def is_dir_fatal(path: str) -> str:
     if not isinstance(path, str):
         log.error("Provided path is not a string.")
@@ -31,16 +18,6 @@ def is_dir_fatal(path: str) -> str:
         log.error(f"{path} :: No such file or directory.", err)
         sys.exit(1)
 
-
-def is_file(path: str) -> bool:
-    # TODO: REPLACE BY NATIVE
-    if not isinstance(path, str):
-        return False
-    try:
-        os.stat(os.path.expanduser(path), follow_symlinks=True)
-    except FileNotFoundError:
-        return False
-    return True
 
 
 def is_file_fatal(path: str) -> str:

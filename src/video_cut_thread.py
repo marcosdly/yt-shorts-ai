@@ -1,13 +1,13 @@
 from config import *
 import os
-from os.path import basename, dirname, exists, join
+from os.path import basename, dirname, exists, join, isfile
 import pathlib
 import hashlib
 import time
 import moviepy.editor as editor
 import shutil
 from local_logging import log
-from io_utils import is_file, move_to_trash, is_video
+from io_utils import move_to_trash, is_video
 from db import create_video_doc_basic
 
 __all__ = ["watch_and_cut"]
@@ -19,7 +19,7 @@ def cut_video_if_valid(path: str):
     where each piece have [duration] seconds.
     """
     # handle not being a file
-    if not is_file(path):  # builtin string check
+    if not isfile(path):  # builtin string check
         log.error(f"Path {path} is not a file, skipping and moving to trash...")
         if exists(path):
             move_to_trash(path)
