@@ -15,4 +15,5 @@ mkdir -p \
   .approved-already-posted-videos/{10s,20s,30s,40s,50s,60s} \
   .invalid-files-and-dirs-trash                             \
   .already-cutted-original-videos                           \
+  .tmp                                                      \
   .yt-shorts.log.d
