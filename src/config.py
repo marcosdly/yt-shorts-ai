@@ -1,23 +1,16 @@
-import sys, os
+import sys
+from os.path import exists, expanduser, isdir
 
 # implementing it here too to avoid circular dependency issues
 def is_dir_fatal(path: str) -> str:
     if not isinstance(path, str):
         print("PATH IS NOT STRING")
         sys.exit(1)
-
-    path = os.path.expanduser(path)
-
-    if not os.path.exists(path):
-        print(f"NO SUCH FILE OR DIRECTORY {path}")
+    path = expanduser(path)
+    if not isdir(path):
+        print(f"{path} IS NOT A DIRECTORY OR DOESN'T EXIST")
         sys.exit(1)
-
-    try:   
-        with os.scandir(path):
-            return path
-    except:
-        print(f"{path} IS NOT A DIRECTORY")
-        sys.exit(1)
+    return path
 
 # Relevant directories
 INPUT_FOLDER = is_dir_fatal("~/yt-shorts-ai.d/.uncutted-videos-input")
