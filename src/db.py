@@ -41,9 +41,9 @@ class VideoDoc(Document):
     meta = {"collection": "videos"}
 
 def create_video_doc_basic(
-        id: str, initial_name: str, content_hash: str,
-        final_name: str, basename: str,
-        duration: int) -> None:
+        initial_name: str, content_hash: str,
+        final_name: str, duration: int, 
+        basename: str = None, id: str = None) -> None:
     """Stores a document entry for a video with ONLY the required fields. Other fields beside
     the required ones are not touched by this function. The 'id' and 'basename' arguments are
     synonymous; specify what sounds more descriptive."""
