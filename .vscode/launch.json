@@ -5,7 +5,7 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "main.py",
+      "name": "Test Environment",
       "type": "python",
       "request": "launch",
       "program": "${workspaceFolder}/src/main.py",
@@ -14,6 +14,14 @@
       "env": {
         "HOME": "${workspaceFolder}/.test_home"
       }
+    },
+    {
+      "name": "Real Environment",
+      "type": "python",
+      "request": "launch",
+      "program": "${workspaceFolder}/src/main.py",
+      "console": "integratedTerminal",
+      "justMyCode": true
     }
   ]
 }
