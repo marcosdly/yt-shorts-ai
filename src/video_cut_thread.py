@@ -12,7 +12,6 @@ from db import create_video_doc_basic
 
 __all__ = ["watch_and_cut"]
 
-# TODO: divide function into smaller ones, as it is performing many actions of different natures
 def cut_video_if_valid(path: str):
     """
     Cuts a video into the maximum possible number of pieces
