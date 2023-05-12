@@ -3,7 +3,7 @@ import sys
 import shutil
 from moviepy.editor import VideoFileClip
 from local_logging import log
-from config import *
+from config.config_wrapper import *
 
 
 def is_dir_fatal(path: str) -> str:

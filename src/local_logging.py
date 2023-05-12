@@ -1,6 +1,6 @@
 import logging, os
 from logging.handlers import WatchedFileHandler
-from config import LOGS_FOLDER
+from config.config_wrapper import LOGS_FOLDER
 
 
 class MasterLogger:

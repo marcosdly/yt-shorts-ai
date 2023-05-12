@@ -1,4 +1,4 @@
-from config import *
+from config.config_wrapper import *
 import os
 from os.path import basename, dirname, exists, join, isfile
 import pathlib
