@@ -7,12 +7,13 @@ import time
 import moviepy.editor as editor
 import shutil
 from local_logging import log
+from json import load
 from io_utils import move_to_trash, is_video
 from db import create_video_doc_basic
 
 __all__ = ["watch_and_cut"]
 
-def cut_video_if_valid(path: str):
+def cut_video_if_valid(path: str, info_json):
     """
     Cuts a video into the maximum possible number of pieces
     where each piece have [duration] seconds.
@@ -108,7 +109,9 @@ def cut_video_if_valid(path: str):
                         initial_name = video_initial_name,
                         content_hash = video_content_hash,
                         final_name = video_final_name,
-                        duration = clip_length
+                        duration = clip_length,
+                        media_name = info_json["media_name"],
+                        media_year = info_json["year"]
                     )
     
 
@@ -118,10 +121,101 @@ def cut_video_if_valid(path: str):
     # moved to trash before this point.
     shutil.move(path, ALREADY_CUTTED_ORIGINAL_FOLDER)
 
+def get_videos_recursively(dir_path: str) -> list[str]:
+    if not isinstance(dir_path, str):
+        raise TypeError("Provided path isn't a string, so it can't point to a directory.")
+    if not isdir(dir_path):
+        raise TypeError("Path doesn't point to a directory.")
+    
+    video_paths = []
+    with os.scandir(dir_path) as inner_dir:
+        for file in inner_dir:
+            if file.is_file() and is_video(file.path):
+                video_paths.append(file.path)
+            if file.is_dir():
+                video_paths.extend(get_videos_recursively(file.path))
+
+    return video_paths
+
+def move_to_series_dir_root(paths: list[str], series_dir: str) -> None:
+    final_paths = []
+    for i, path in enumerate(paths):
+        new_path = join(series_dir, f"{i}{pathlib.Path(path).suffix}")
+        shutil.move(src=path, dst=new_path)
+        final_paths.append(new_path)
+    return final_paths
+        
+
+def move_to_useless_folder(paths: list[str], useless_dir: str) -> None:
+    if not isdir(useless_dir):
+        os.mkdir(useless_dir)
+    for path in paths:
+        if is_video(path) or basename(path) == "info.json" or path == useless_dir:
+            continue
+        shutil.move(src=path, dst=useless_dir)
 
 def watch_and_cut():
     while True:
-        with os.scandir(INPUT_FOLDER) as dir:
-            for file_or_dir in dir:
-                cut_video_if_valid(file_or_dir.path)
+        for media_type in ["movie", "series"]:
+            # INPUT_FOLDER/movie or INPUT_FOLDER/series
+            with os.scandir(join(INPUT_FOLDER, media_type)) as media_dir:
+                # loop over media_type dir
+                for video_dir in media_dir:
+                    if not video_dir.is_dir():
+                        continue
+                    # if dir entry is a folder, open it
+                    # INPUT_FOLDER/movie/scooby-doo-zombie-island
+                    movie_series_dir = video_dir.path
+
+                    # Using "with os.scandir" here causes a weird bug:
+                    # the list of dir entries is wiped after some time.
+                    # If you put a breakpoint after the if statement, the
+                    # statement will run fine; put it before and let it 
+                    # rest during debug and you can watch the list being wiped.
+                    # with os.scandir(video_dir.path) as video_info_dir:
+                    # Using the slower os.listdir instead.
+
+                    def scanfolder() -> tuple[list[str], list[str]]:
+                        entries = os.listdir(movie_series_dir)
+                        return entries, [join(movie_series_dir, name) for name in entries]
+
+                    dir_entries, dir_entries_paths = scanfolder()
+
+                    # if folder doesn't have an info.json file, skip it
+                    if not "info.json" in dir_entries:
+                        log.error("No info file found on directory, skipping...")
+                        continue
+
+                    info = open(join(movie_series_dir, "info.json"), "rb")
+                    info = load(info)
+                    log.info(f"""Found {media_type}. Title: {info["media_name"]}; Year: {info["year"]}""")
+
+                    if media_type == "movie":
+                        # if folder has an info.json file and it is a movie, grab
+                        # only the first video file inside it
+                        videos = [x for x in dir_entries_paths if is_video(x)]
+                        if len(videos) == 0:
+                            log.error("No videos found inside a directory that contains a valid info file. Skipping...")
+                            # TODO move valid folders with no videos to trash
+                            continue
+                        cut_video_if_valid(videos[0], info)
+                    if media_type == "series":
+                        # if folder has an info.json file and it is a series, loop over all
+                        # its subdirectories searching for videos and put all theirs paths
+                        # in a list
+                        videos = get_videos_recursively(movie_series_dir)
+                        # move all the videos to the same folder as the info.json file and
+                        # rename them with their position in the generated list of paths
+                        # (0.mkv, 1.mkv, 2.mkv, etc), which is arbitrary. Return
+                        # the new paths.
+                        videos = move_to_series_dir_root(videos, movie_series_dir)
+                        # move all the folders left the 'useless' folder
+                        useless_folder = join(movie_series_dir, "useless")
+                        dir_entries, dir_entries_paths = scanfolder()
+                        move_to_useless_folder(dir_entries_paths, useless_folder)
+                        # for every video in the folder
+                        for vid_path in videos:
+                            cut_video_if_valid(vid_path, info)
+
+
         time.sleep(120)  # in seconds
