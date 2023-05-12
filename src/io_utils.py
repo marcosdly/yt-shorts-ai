@@ -41,12 +41,7 @@ def move_to_trash(path: str):
     shutil.move(path, TRASH_FOLDER)
 
 def is_video(path: str) -> bool:
-    if not isinstance(path, str):
-        raise TypeError("Provided path is not a string.")
-    
-    if not isfile(path):
-        raise TypeError("Provided path doesn't point to a file.")
-    
+    if not isfile(path): return False
     try:
         with VideoFileClip(path):
             return True
