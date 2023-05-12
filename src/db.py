@@ -20,6 +20,8 @@ class VideoDoc(Document):
     original_video_initial_name = StringField(required=True)
     original_video_content_hash = StringField(required=True)
     original_video_final_name = StringField(required=True)
+    media_name = StringField(required=True)
+    media_year = StringField(required=True)
     basename = StringField(required=True,primary_key=True)
     duration = IntField(required=True)
 
@@ -43,6 +45,7 @@ class VideoDoc(Document):
 def create_video_doc_basic(
         initial_name: str, content_hash: str,
         final_name: str, duration: int, 
+        media_name: str, media_year: int,
         basename: str = None, id: str = None) -> None:
     """Stores a document entry for a video with ONLY the required fields. Other fields beside
     the required ones are not touched by this function. The 'id' and 'basename' arguments are
@@ -54,7 +57,9 @@ def create_video_doc_basic(
             and initial_name
             and content_hash
             and final_name
-            and duration):
+            and duration
+            and media_name
+            and media_year):
         raise TypeError("All arguments are required, except id and basename, which are synonymous.")
 
     temp_doc = VideoDoc()
@@ -63,4 +68,6 @@ def create_video_doc_basic(
     temp_doc.original_video_final_name     = final_name
     temp_doc.basename                      = basename or id
     temp_doc.duration                      = duration
+    temp_doc.media_name                    = media_name
+    temp_doc.media_year                    = media_year
     temp_doc.save()
