@@ -8,7 +8,7 @@ cd yt-shorts-ai.d
 
 # create required directories if they don't exist
 mkdir -p \
-  .uncutted-videos-input                                    \
+  .uncutted-videos-input/{movie,series}                     \
   .cutted-videos-pre-validation/{10s,20s,30s,40s,50s,60s}   \
   .rejected-videos/{10s,20s,30s,40s,50s,60s}                \
   .approved-not-posted-videos/{10s,20s,30s,40s,50s,60s}     \
