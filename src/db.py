@@ -21,7 +21,7 @@ class VideoDoc(Document):
     original_video_content_hash = StringField(required=True)
     original_video_final_name = StringField(required=True)
     media_name = StringField(required=True)
-    media_year = StringField(required=True)
+    media_year = IntField(required=True)
     basename = StringField(required=True,primary_key=True)
     duration = IntField(required=True)
 
