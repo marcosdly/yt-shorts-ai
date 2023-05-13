@@ -30,6 +30,15 @@
       "program": "${file}",
       "console": "integratedTerminal",
       "justMyCode": true
+    },
+    {
+      "name": "CLI",
+      "type": "python",
+      "request": "launch",
+      "program": "${workspaceFolder}/src/CLI/main.py",
+      "args": ["add", "/home/marcosdly/Videos/series-test/"],
+      "console": "integratedTerminal",
+      "justMyCode": true
     }
   ]
 }
