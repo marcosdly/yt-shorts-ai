@@ -33,7 +33,7 @@ def child_folders_by_duration(original_dict: dict[str, str]) -> dict[int, str]:
         # throw it again but with a better message
         raise ValueError("One or more keys are not string representations of integers. Could not convert the key to integer.")
 
-config_json_path = join(dirname(__file__), "config.json")
+config_json_path = join(dirname(__file__), "..", "config", "config.json")
 config = load(open(config_json_path, "rb")) # can throw
 
 # Relevant directories
