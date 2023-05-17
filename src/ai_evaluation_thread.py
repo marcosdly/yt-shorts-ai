@@ -170,13 +170,7 @@ def watch_db_and_evaluate_video_AI() -> None:
     while True:
         # querying for videos not yet validated
         # they must be inside the "not yet validated" specific folder
-        query = VideoDoc.objects(duration=60)
-        docs = [doc for doc in query if doc.basename in listdir(join(
-            OUTPUT_FOLDER, CHILD_OUTPUT_FOLDER_BY_DURATION[60]
-        ))]
-        for doc in docs:
-        # for doc in VideoDoc.objects(transcription__exists=True, rejected=True,
-                                    # duration=60):
+        for doc in VideoDoc.objects(transcription__exists=False, rejected=True):
             video_path = join(OUTPUT_FOLDER,
                               CHILD_OUTPUT_FOLDER_BY_DURATION[doc.duration],
                               doc.basename)
