@@ -6,6 +6,8 @@
 # ignoring config files that contain sensible information
 config/database.json
 config/openai.json
+config/instagram_login.json
+config/tiktok_login.json
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
