@@ -2,10 +2,11 @@ from pathlib import Path
 from instagrapi import Client
 from db import VideoDoc
 from os.path import dirname, join
-from json import load, loads
+from json import load
+from config_wrapper import TEMP_FOLDER
 
 CREDENTIALS = load(open(join(dirname(__file__), "..", "config", "instagram_login.json"), "rb"))
-SETTINGS_PATH = join(dirname(__file__), "instagram-auth.json")
+SETTINGS_PATH = join(TEMP_FOLDER, "instagram-auth.json")
 
 def login() -> Client:
     cl = Client()
