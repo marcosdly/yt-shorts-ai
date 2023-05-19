@@ -14,6 +14,9 @@ connect(
     password=config["password"]
 )
 
+class Posted(EmbeddedDocument):
+    posted = BooleanField(default=False)
+    url = URLField()
 
 class VideoDoc(Document):
     # required
@@ -38,8 +41,9 @@ class VideoDoc(Document):
     
     content_description = StringField()
     title = StringField()
-    posted = BooleanField(default=False)
-    youtube_url = StringField()
+    youtube = EmbeddedDocumentField(Posted)
+    instagram = EmbeddedDocumentField(Posted)
+    tiktok = EmbeddedDocumentField(Posted)
     meta = {"collection": "videos"}
 
 def create_video_doc_basic(
