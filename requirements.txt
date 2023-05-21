@@ -18,3 +18,4 @@ playwright               == 1.30.0
 tiktokapipy              >= 0.1.12, <= 1.0.*
 requests                 == 2.30.0
 tiktok-uploader          == 1.0.*
+openai-whisper
