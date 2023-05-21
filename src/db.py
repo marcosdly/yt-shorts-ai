@@ -3,7 +3,7 @@ from mongoengine import *
 
 __all__ = ["Video"]
 
-config_file_path = os.path.abspath(f"{os.path.dirname(__file__)}/../config/database.json")
+config_file_path = os.path.join(os.path.dirname(__file__),"..","config","database.json")
 config = json.load(open(config_file_path, "rb"))
 
 connect(
