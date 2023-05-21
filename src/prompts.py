@@ -17,12 +17,15 @@ trancription_prompt = \
 # previous ones as equaly specific, so even if the text match one of them, it will say "No."
 # because the criteria matched didn't represent an important enough part of the text.
 # Here one of such criteria that poisoned the entire prompt: "... , or presents a 
-# conversation where the subject is either law, ethics, merit, or disparity between 
+# conversation where the subject is either law, ethics, merit, or disparity bare etween 
 # good and bad".
 # Other (better) chat ai models, may overcome this, just like chatgpt does, but they
 # cost more, and thats a killer con for me right now. 
+# TODO specify if the input is a series of movie
+# TODO try to get list of characteristics the paragraph complies to and see if it matches any; in this case, improve prompt so there's no too ambiguous characteristic that may poison the prompt
+# TODO order the characteristics to improve prompt correctness
 validation_prompt = \
-"""The text starting on the next paragraph on was extracted from a {} clip of the movie "{}" from the year {}. Tell me with Yes or No if it presents one or more of these characteristics: presents and concludes an idea, says something funny, teaches something, presents a conversation that teaches something about one of people involved, presents a funny conversation, describes something that could've happened, describes an object, describes an ideia, describes a concept, or presents a funny irony.
+"""The text starting on the next paragraph on was extracted from a {} clip of the movie "{}" from the year {}. Tell me with Yes or No if it presents one or more of these characteristics: presents and concludes an idea, says something funny, teaches something, teaches or tells something about a character of the movie, teaches something about the world or universe where the events of the movie occur, presents a funny situation, presents one or more elements that are the signature of one or more of the main characters of the movie, presents a signature moment or conversation of the movie, presents a conversation that teaches something about one of people involved, presents a funny conversation, describes something that could've happened, describes an object, describes an ideia, describes a concept, or presents a funny irony.
 
 {}"""
 
@@ -33,7 +36,7 @@ justify_your_answer_prompt = \
 # answer with more, unrelated, text. To solve this, detect the json code
 # with regex instead of parsing the whole string.
 write_title_json_prompt = \
-"""Based on what you just told me, write a title with 20 characters at maximum and hashtags for a video . The hashtags must: contain only lower case characters, be a single word each, and make use of only the must known words among the average person. Pick an integer number between and including 2 and 4, then write an amount of hashtags equal to the number you picked.
+"""Based on what you just told me, write a title with 20 characters at maximum and hashtags for a video. The hashtags must: contain only lower case characters, be a single word each, and make use of only the must known words among the average person. Pick an integer number between and including 2 and 4, then write an amount of hashtags equal to the number you picked.
 
 Answer me in JSON code, but make it fit on one line by minifying it, then answer me with only this line, nothing more. The title must be a string, and the hashtags an array of strings."""
 
