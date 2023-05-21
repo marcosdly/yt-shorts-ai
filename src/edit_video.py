@@ -1,6 +1,12 @@
-from moviepy.editor import VideoFileClip, CompositeVideoClip
+from io import BufferedReader
+from pathlib import Path
+from random import choice
+from moviepy.editor import VideoFileClip, CompositeVideoClip, TextClip
 import moviepy.video.fx.all as vfx
 from skimage.filters import gaussian
+import whisper
+from subtitles_fx import SUBTITLE_FX, COLORS
+
 
 __all__ = ["edit_video"]
 
@@ -35,7 +41,24 @@ def rule_of_three(a, b, c) -> int | float:
     x = (b*c)/a
     return x
 
-def edit_video(video: VideoFileClip) -> CompositeVideoClip:
+def local_transcription(audio_path: Path, prompt: str) -> dict[str, str | list]:
+    model = whisper.load_model("small")
+    transcription = model.transcribe(audio=str(audio_path), temperature=0.0, initial_prompt=prompt)
+    return transcription
+
+def create_subs_clips(segments: list[dict[str, str | float]], duration: int,
+                      frame_size: tuple[int, int]) -> list[TextClip]:
+    fx_func = choice(SUBTITLE_FX)
+    text_color = choice(COLORS)
+    upper_case = choice([True, False])
+    subtitles: list[TextClip] = []
+    for segment in segments:
+        clip: TextClip = fx_func(segment["text"], segment["start"], segment["end"],
+                                 text_color, duration, frame_size, upper_case)
+        subtitles.append(clip)
+    return subtitles
+        
+def edit_video(video: VideoFileClip, audio_path: Path, prompt: str) -> CompositeVideoClip:
     final_size = width, height = (1080, 1920) # phone-like 16:9 (width, heigth)
     # final_size = width, height = (480, 854) # debug
     principal_video = None
@@ -99,10 +122,29 @@ def edit_video(video: VideoFileClip) -> CompositeVideoClip:
     blury_video = blury_video.fl_image(
         lambda image: gaussian(image.astype(float), sigma=30)) # apply blur
 
-    clips = [blury_video, principal_video] # first one will be the background
+    transcription = local_transcription(audio_path, prompt)
+    subtitles = create_subs_clips(transcription["segments"], video.duration, final_size)
+
+    # first one will be the background
+    clips = [blury_video, principal_video, *[c.set_position(("center", "center")) for c in subtitles]]
 
     final_video = CompositeVideoClip(size=final_size, # phone-like 16:9
                                             # use_bgclip=True,  # first clip is the background
                                             clips=clips)
-    video.close()
     return final_video
+
+if __name__ == "__main__":
+    from db import VideoDoc
+    from config_wrapper import APPROVED_FOLDER, CHILD_OUTPUT_FOLDER_BY_DURATION, TEMP_FOLDER
+    from os.path import join
+    import prompts
+    doc = VideoDoc.objects(rejected=False).first()
+    video_path = join(APPROVED_FOLDER,
+                      CHILD_OUTPUT_FOLDER_BY_DURATION[doc.duration], doc.basename)
+    prompt = prompts.gen_transcription_prompt(doc.media_name, doc.media_year)
+    temp_audio_path = join(TEMP_FOLDER, "debug-video-editing.mp3")
+    with VideoFileClip(video_path) as video:
+        video.audio.write_audiofile(temp_audio_path)
+        new_video = edit_video(video, Path(temp_audio_path), prompt)
+        new_video.write_videofile(join(TEMP_FOLDER, "subtitles.mp4"),
+                                codec="libx264", threads=4)
