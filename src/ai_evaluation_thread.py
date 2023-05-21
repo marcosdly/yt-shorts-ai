@@ -157,12 +157,13 @@ def evaluate_with_ai(video_path: str, document: VideoDoc) -> None:
         video_path = move_to_approved_folder(video_path, document.duration)
         log.info("Video files successfully moved to approved videos folder.")
         log.info("Rendering new version of video...")
-        # with VideoFileClip(video_path) as video:
-        #     new_video = edit_video(video)
-        #     temp_path = join(dirname(video_path), f"RENDERING-{basename(video_path)}")
-        #     new_video.write_videofile(temp_path, codec="libx264", threads=THREADS)
-        #     move(src=temp_path, dst=video_path)
-        # log.info("New video rendered. Ready to be uploaded.")
+        with VideoFileClip(video_path) as video:
+            prompt = prompts.gen_transcription_prompt(document.media_name, document.media_year)
+            new_video = edit_video(video, audio_file, prompt)
+            temp_path = join(dirname(video_path), f"RENDERING-{basename(video_path)}")
+            new_video.write_videofile(temp_path, codec="libx264", threads=THREADS)
+            move(src=temp_path, dst=video_path)
+        log.info("New video rendered. Ready to be uploaded.")
         return
 
 
